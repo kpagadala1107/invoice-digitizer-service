@@ -43,7 +43,6 @@ public class InvoiceService {
             item.setName(i.name);
             item.setQuantity(i.quantity);
             item.setUnitPrice(i.unitPrice);
-            item.setInvoice(invoice);
             return item;
         }).collect(Collectors.toList());
 
@@ -56,6 +55,6 @@ public class InvoiceService {
     }
 
     public Invoice get(Long id) {
-        return invoiceRepository.findById(id).orElseThrow();
+        return invoiceRepository.findById(String.valueOf(id)).orElseThrow();
     }
 }
