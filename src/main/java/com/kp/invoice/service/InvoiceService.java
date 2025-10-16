@@ -54,7 +54,13 @@ public class InvoiceService {
         return invoiceRepository.findAll();
     }
 
-    public Invoice get(Long id) {
+    public Invoice getInvoiceById(String id) {
         return invoiceRepository.findById(String.valueOf(id)).orElseThrow();
+    }
+
+    public Invoice deleteInvoice(String id) {
+        Invoice invoice = invoiceRepository.findById(String.valueOf(id)).orElseThrow();
+        invoiceRepository.delete(invoice);
+        return invoice;
     }
 }

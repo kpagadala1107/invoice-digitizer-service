@@ -44,7 +44,17 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    public Invoice get(@PathVariable Long id) {
-        return invoiceService.get(id);
+    public Invoice getInvoiceById(@PathVariable String id) {
+        return invoiceService.getInvoiceById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Invoice updateInvoice(@PathVariable String id) {
+        return invoiceService.deleteInvoice(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public Invoice deleteInvoice(@PathVariable String id) {
+        return invoiceService.deleteInvoice(id);
     }
 }
