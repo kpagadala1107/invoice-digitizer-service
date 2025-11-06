@@ -16,11 +16,13 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final OcrService ocrService;
     private final OcrServiceMock ocrServiceMock;
+    private final OcrServiceDefault ocrServiceDefault;
 
-    public InvoiceService(InvoiceRepository invoiceRepository, OcrService ocrService,OcrServiceMock ocrServiceMock) {
+    public InvoiceService(InvoiceRepository invoiceRepository, OcrService ocrService,OcrServiceMock ocrServiceMock, OcrServiceDefault ocrServiceDefault) {
         this.invoiceRepository = invoiceRepository;
         this.ocrService = ocrService;
         this.ocrServiceMock = ocrServiceMock;
+        this.ocrServiceDefault = ocrServiceDefault ;
     }
 
     public InvoiceDTO processInvoice(MultipartFile file) {
@@ -28,6 +30,12 @@ public class InvoiceService {
         InvoiceDTO dto = ocrService.extractFromImage(file);
         Invoice invoice = this.saveInvoice(dto);
         return dto;
+    }
+
+    public String processDocument(MultipartFile file) {
+        // InvoiceDTO dto = ocrServiceMock.extractFromImage(file);
+//        String docKeyValues = ocrServiceDefault.extractFromImage(file);
+        return ocrServiceDefault.extractFromImage(file);
     }
 
     public Invoice saveInvoice(InvoiceDTO dto) {

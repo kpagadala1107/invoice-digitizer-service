@@ -24,7 +24,12 @@ public class InvoiceController {
     }
 
     @PostMapping("/upload")
-    public InvoiceDTO upload(@RequestParam("file") MultipartFile file) {
+    public String upload(@RequestParam("file") MultipartFile file) {
+        return invoiceService.processDocument(file);
+    }
+
+    @PostMapping("/upload/invoice")
+    public InvoiceDTO uploadInvoice(@RequestParam("file") MultipartFile file) {
         return invoiceService.processInvoice(file);
     }
 
