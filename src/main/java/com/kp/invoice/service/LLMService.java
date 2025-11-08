@@ -37,7 +37,7 @@ public class LLMService {
                 .model(model)
                 .messages(List.of(new ChatMessage("user", prompt)))
                 .temperature(0.2)
-                .maxTokens(500)
+                .maxTokens(1000)
                 .build();
 
         ChatCompletionResult result = service.createChatCompletion(request);

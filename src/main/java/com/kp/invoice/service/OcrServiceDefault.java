@@ -42,53 +42,61 @@ public class OcrServiceDefault {
                     BinaryData.fromBytes(file.getBytes())
             ).getFinalResult();
 
-
             // --- 4️⃣ Call LLM Service with document content ---
-            System.out.println("\n---- LLM ANALYSIS ----");
             String documentContent = result.getContent();
+            System.out.println("Document Content: \n" + documentContent);
             String llmExtractedFields = llmService.analyzeDocument(documentContent);
 
+            // Clean and format the JSON response
+            String cleanedJson = cleanJsonResponse(llmExtractedFields);
+            System.out.println("LLM Extracted Fields (Clean JSON): \n" + cleanedJson);
 
-//            // --- 1️⃣ Extract Key-Value Pairs ---
-//            System.out.println("---- KEY VALUE PAIRS ----");
-//            List<DocumentKeyValuePair> keyValuePairs = result.getKeyValuePairs();
-//            if (keyValuePairs != null) {
-//                for (DocumentKeyValuePair kvp : keyValuePairs) {
-//                    String key = kvp.getKey() != null ? kvp.getKey().getContent() : "";
-//                    String value = kvp.getValue() != null ? kvp.getValue().getContent() : "";
-//                    System.out.println(key + " : " + value);
-//                }
-//            }
-//
-//            // --- 2️⃣ Extract Tables ---
-//            System.out.println("\n---- TABLES ----");
-//            List<DocumentTable> tables = result.getTables();
-//            if (tables != null) {
-//                for (DocumentTable table : tables) {
-//                    System.out.println("Table with " + table.getRowCount() + " rows and " +
-//                            table.getColumnCount() + " columns");
-//
-//                    for (DocumentTableCell cell : table.getCells()) {
-//                        System.out.printf("(%d,%d): %s%n",
-//                                cell.getRowIndex(), cell.getColumnIndex(), cell.getContent());
-//                    }
-//                }
-//            }
-//
-//            // --- 3️⃣ Extract Paragraphs ---
-//            System.out.println("\n---- PARAGRAPHS ----");
-//            List<DocumentParagraph> paragraphs = result.getParagraphs();
-//            if (paragraphs != null) {
-//                for (DocumentParagraph paragraph : paragraphs) {
-//                    System.out.println(paragraph.getContent());
-//                }
-//            }
-
-            return llmExtractedFields;
-
-
+            return cleanedJson;
         } catch (Exception e) {
             throw new RuntimeException("OCR failed: " + e.getMessage(), e);
         }
     }
+
+    private String cleanJsonResponse(String jsonResponse) {
+        if (jsonResponse == null || jsonResponse.trim().isEmpty()) {
+            return "{}";
+        }
+
+        // Remove markdown code block markers if present
+        String cleaned = jsonResponse.replaceAll("```json", "")
+                .replaceAll("```", "")
+                .trim();
+
+        // Remove escape characters and unwanted characters
+        cleaned = cleaned.replaceAll("\\\\\"", "\"")     // Remove escaped quotes
+                .replaceAll("\\\\n", "")                  // Remove escaped newlines
+                .replaceAll("\\\\r", "")                  // Remove escaped carriage returns
+                .replaceAll("\\\\t", " ")                 // Replace escaped tabs with spaces
+                .replaceAll("\\\\\\\\", "")               // Remove escaped backslashes
+                .replaceAll("\\\\", "")                   // Remove any remaining backslashes
+                .replaceAll("\\n", " ")                   // Replace actual newlines with spaces
+                .replaceAll("\\r", " ");                  // Replace actual carriage returns with spaces
+
+        // Clean up spacing around JSON punctuation
+        cleaned = cleaned.replaceAll("\\s*,\\s*", ",")
+                .replaceAll("\\s*:\\s*", ":")
+                .replaceAll("\\s*\\{\\s*", "{")
+                .replaceAll("\\s*\\}\\s*", "}")
+                .replaceAll("\\s*\\[\\s*", "[")
+                .replaceAll("\\s*\\]\\s*", "]")
+                .replaceAll("\\s+", " ")                  // Replace multiple spaces with single space
+                .trim();
+
+        // Ensure proper JSON formatting with minimal spacing
+        cleaned = cleaned.replaceAll(",", ", ")
+                .replaceAll(":", ": ")
+                .replaceAll("\\{", "{ ")
+                .replaceAll("\\}", " }")
+                .replaceAll("\\[", "[ ")
+                .replaceAll("\\]", " ]");
+
+        return cleaned;
+    }
+
+
 }
