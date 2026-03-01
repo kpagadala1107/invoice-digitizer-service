@@ -27,17 +27,27 @@ public class LLMService {
         OpenAiService service = new OpenAiService(openAiApiKey, Duration.ofSeconds(60));
 
         String prompt = """
-                Analyze and extract the fields from the document content and return as key-value pairs in JSON format. Also include documentType as the first field in the Json.
-                Document Content:
-                """ +
-                docContent + "\n";
+        You are a financial document parser. Analyze the document content below and extract all relevant fields.
+        Return the result as a valid JSON object with the following rules:
+        1. First field must be "documentType" (e.g., "Bank Statement", "Invoice", "Receipt", etc.)
+        2. Extract all key financial fields such as account numbers, dates, balances, transactions, etc.
+        3. For transaction lists, use JSON arrays of objects.
+        4. Normalize amounts as numeric values (no $ signs).
+        5. Use camelCase for all field names.
+        6. Return ONLY the JSON object, no explanation or markdown code blocks.
+        
+        Document Content:
+        """ + docContent + "\n";
 
 
         ChatCompletionRequest request = ChatCompletionRequest.builder()
                 .model(model)
-                .messages(List.of(new ChatMessage("user", prompt)))
+                .messages(List.of(
+                        new ChatMessage("system", "You are a financial document parser. Always return complete, valid JSON only."),
+                        new ChatMessage("user", prompt)
+                ))
                 .temperature(0.2)
-                .maxTokens(1000)
+                .maxTokens(4000)  // Increased from 1000 to 4000
                 .build();
 
         ChatCompletionResult result = service.createChatCompletion(request);
